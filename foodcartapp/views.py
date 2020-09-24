@@ -1,9 +1,11 @@
 from django.templatetags.static import static
 from django.http import JsonResponse
+from rest_framework.views import APIView
+from rest_framework.response import Response
 import json
 
-
 from .models import Product, Order, OrderProduct
+from .serializers import CreateOrderSerializer
 
 
 def banners_list_api(request):
@@ -65,21 +67,36 @@ def register_order(request):
         return JsonResponse({
             'error': 'Failed to decode order!',
         })
-    print(data)
     products = [(Product.objects.get(pk=product['product']), product['quantity']) for product in data['products']]
-    print(products)
     new_order = Order.objects.create(
         first_name=data['firstname'],
         last_name=data['lastname'],
         phone_number=data['phonenumber'],
         address=data['address'],
     )
-    print(new_order)
     for product, quantity in products:
-        print(product, quantity)
         OrderProduct.objects.create(
             order=new_order,
             product=product,
             quantity=quantity,
         )
     return JsonResponse({})
+
+
+class api_register_order(APIView):
+
+    def post(self, request):
+        data = request.data
+        products = data['products']
+        order_data = {
+            "first_name":data['firstname'],
+            "last_name":data['lastname'],
+            "phone_number":data['phonenumber'],
+            "address":data['address'],
+        }
+        serializer = CreateOrderSerializer(data=order_data)
+        if serializer.is_valid():
+            serializer.save(products=products)
+            return Response(status=201)
+        else:
+            return Response(status=400)
