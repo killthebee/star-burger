@@ -1,6 +1,7 @@
 from django.templatetags.static import static
 from django.http import JsonResponse
 from rest_framework.views import APIView
+from rest_framework import status
 from rest_framework.response import Response
 import json
 
@@ -87,7 +88,16 @@ class api_register_order(APIView):
 
     def post(self, request):
         data = request.data
-        products = data['products']
+        try:
+            products = data['products']
+            if not isinstance(products[0]['product'], int):
+                return Response({'Type Error': 'something wrong with products'}, status=status.HTTP_400_BAD_REQUEST)
+            for key in data:
+                if key != 'product':
+                    if not isinstance(data[key], str) or len(data[key]) < 2:
+                        return Response({'Error': 'something wrong with personal info'}, status=status.HTTP_400_BAD_REQUEST)
+        except (TypeError, IndexError, KeyError):
+            return Response({'Type Error': 'something wrong with products'}, status=status.HTTP_400_BAD_REQUEST)
         order_data = {
             "first_name":data['firstname'],
             "last_name":data['lastname'],
@@ -97,6 +107,6 @@ class api_register_order(APIView):
         serializer = CreateOrderSerializer(data=order_data)
         if serializer.is_valid():
             serializer.save(products=products)
-            return Response(status=201)
+            return JsonResponse({})
         else:
             return Response(status=400)
