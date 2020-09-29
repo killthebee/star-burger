@@ -87,26 +87,30 @@ def register_order(request):
 class api_register_order(APIView):
 
     def post(self, request):
-        data = request.data
+        # data = request.data
+        # try:
+        #     products = data['products']
+        #     if not isinstance(products[0]['product'], int):
+        #         return Response({'Type Error': 'something wrong with products'}, status=status.HTTP_400_BAD_REQUEST)
+        #     for key in data:
+        #         if key != 'product':
+        #             if not isinstance(data[key], str) or len(data[key]) < 2:
+        #                 return Response({'Error': 'something wrong with personal info'}, status=status.HTTP_400_BAD_REQUEST)
+        # except (TypeError, IndexError, KeyError):
+        #     return Response({'Type Error': 'something wrong with products'}, status=status.HTTP_400_BAD_REQUEST)
         try:
-            products = data['products']
-            if not isinstance(products[0]['product'], int):
-                return Response({'Type Error': 'something wrong with products'}, status=status.HTTP_400_BAD_REQUEST)
-            for key in data:
-                if key != 'product':
-                    if not isinstance(data[key], str) or len(data[key]) < 2:
-                        return Response({'Error': 'something wrong with personal info'}, status=status.HTTP_400_BAD_REQUEST)
-        except (TypeError, IndexError, KeyError):
-            return Response({'Type Error': 'something wrong with products'}, status=status.HTTP_400_BAD_REQUEST)
-        order_data = {
-            "first_name":data['firstname'],
-            "last_name":data['lastname'],
-            "phone_number":data['phonenumber'],
-            "address":data['address'],
-        }
+            #...потом переименую
+            order_data = {
+                "products": request.data['products'],
+                "first_name": request.data['firstname'],
+                "last_name": request.data['lastname'],
+                "phone_number": request.data['phonenumber'],
+                "address": request.data['address'],
+            }
+        except KeyError:
+            return Response({'Key Error': 'some fields are missing :('}, status=status.HTTP_400_BAD_REQUEST)
         serializer = CreateOrderSerializer(data=order_data)
-        if serializer.is_valid():
-            serializer.save(products=products)
-            return JsonResponse({})
-        else:
-            return Response(status=400)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        print(serializer.data)
+        return JsonResponse({})

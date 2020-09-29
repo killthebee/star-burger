@@ -78,8 +78,11 @@ class Order(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.phone_number_pure:
-            parsed_phone_number = phonenumbers.parse(self.phone_number, "RU")
-            self.phone_number_pure = phonenumbers.format_number(parsed_phone_number, phonenumbers.PhoneNumberFormat.INTERNATIONAL)
+            try:
+                parsed_phone_number = phonenumbers.parse(self.phone_number, "RU")
+                self.phone_number_pure = phonenumbers.format_number(parsed_phone_number, phonenumbers.PhoneNumberFormat.INTERNATIONAL)
+            except phonenumbers.NumberParseException:
+                pass
         return super().save(*args, **kwargs)
 
     def __str__(self):
