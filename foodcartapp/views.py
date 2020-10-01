@@ -3,6 +3,7 @@ from django.http import JsonResponse
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
+from rest_framework.renderers import JSONRenderer
 import json
 
 from .models import Product, Order, OrderProduct
@@ -112,5 +113,5 @@ class api_register_order(APIView):
         serializer = CreateOrderSerializer(data=order_data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        print(serializer.data)
-        return JsonResponse({})
+
+        return Response(serializer.validated_data)

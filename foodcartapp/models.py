@@ -1,6 +1,7 @@
 import phonenumbers
 from django.contrib.auth.models import User
 from django.db import models
+from django.db.models import Sum
 from django.core.validators import MinValueValidator, MaxValueValidator
 from phonenumber_field.modelfields import PhoneNumberField
 
@@ -76,6 +77,10 @@ class Order(models.Model):
     phone_number_pure = PhoneNumberField("Нормализованный номер телефона", blank=True)
     address = models.CharField(max_length=200, verbose_name='Адресс')
 
+    @property
+    def cart_total(self):
+        return self.order_products.all().aggregate(cart_total=Sum('product_total'))
+
     def save(self, *args, **kwargs):
         if not self.phone_number_pure:
             try:
@@ -97,6 +102,12 @@ class OrderProduct(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, verbose_name='Заказ', related_name='order_products')
     product = models.ForeignKey(Product, null=True, on_delete=models.SET_NULL, verbose_name='Продукт')
     quantity = models.SmallIntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)], verbose_name='Количество')
+    product_total = models.DecimalField('цена', null=True, max_digits=8, decimal_places=2)
+
+    def save(self, *args, **kwargs):
+        if not self.product_total:
+            self.product_total = self.product.price * self.quantity
+        return super().save(*args, **kwargs)
 
     def __str__(self):
         return self.product.name
