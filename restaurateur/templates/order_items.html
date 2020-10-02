@@ -1,4 +1,5 @@
 {% extends 'base_restaurateur_page.html' %}
+{% load admin_urls %}
 
 {% block title %}Необработанные заказы | Star Burger{% endblock %}
 
@@ -18,19 +19,21 @@
       <th>Клиент</th>
       <th>Телефон</th>
       <th>Адрес доставки</th>
+      <th>Заказ</th>
     </tr>
 
-    {% for item in order_items %}
+    {% for order in orders %}
       <tr>
-        <td>{{ item.id }}</td>
-        {% if item.cart_total.cart_total %}
-          <td>{{ item.cart_total.cart_total }} руб.</td>
+        <td>{{ order.id }}</td>
+        {% if order.cart_total.cart_total %}
+          <td>{{ order.cart_total.cart_total }} руб.</td>
         {% else %}
           <td>???</td>
         {% endif %}
-        <td>{{ item.first_name }} {{ item.last_name }}</td>
-        <td>{{ item.phone_number_pure }}</td>
-        <td>{{ item.address }}</td>
+        <td>{{ order.first_name }} {{ item.last_name }}</td>
+        <td>{{ order.phone_number_pure }}</td>
+        <td>{{ order.address }}</td>
+        <td><a href="{% url 'admin:foodcartapp_order_change' order.id %}?next={{ request.get_full_path|urlencode }}">Редактировать</a> </td>
       </tr>
     {% endfor %}
    </table>

@@ -5,6 +5,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.renderers import JSONRenderer
 import json
+from django.db import transaction
 
 from .models import Product, Order, OrderProduct
 from .serializers import CreateOrderSerializer
@@ -87,6 +88,7 @@ def register_order(request):
 
 class api_register_order(APIView):
 
+    @transaction.atomic
     def post(self, request):
         # data = request.data
         # try:
