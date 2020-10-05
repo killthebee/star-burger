@@ -4,6 +4,7 @@ from django.db import models
 from django.db.models import Sum
 from django.core.validators import MinValueValidator, MaxValueValidator
 from phonenumber_field.modelfields import PhoneNumberField
+from django.utils import timezone
 
 
 class Restaurant(models.Model):
@@ -77,12 +78,24 @@ class Order(models.Model):
         ('2', 'Передан курьеру'),
         ('3', 'Доставлен'),
     )
-    first_name = models.CharField(max_length=30, verbose_name='Имя')
-    last_name = models.CharField(max_length=30, verbose_name='Фамилия')
-    phone_number = models.CharField("Номер телефона", max_length=20)
-    phone_number_pure = PhoneNumberField("Нормализованный номер телефона", blank=True)
-    address = models.CharField(max_length=200, verbose_name='Адресс')
-    order_status = models.CharField("Статус заказа", max_length=1, choices=ORDER_STATUSES, default='0')
+    PAYMENT_METHODS = (
+        ('0', 'Наличные'),
+        ('1', 'Картой онлайн'),
+    )
+
+    first_name = models.CharField('Имя', max_length=30)
+    last_name = models.CharField('Фамилия', max_length=30)
+    phone_number = models.CharField('Номер телефона', max_length=20)
+    phone_number_pure = PhoneNumberField('Нормализованный номер телефона', blank=True)
+    address = models.CharField('Адресс', max_length=200)
+    order_status = models.CharField('Статус заказа', max_length=1, choices=ORDER_STATUSES, default='0')
+    comment = models.TextField('Комментарий', default='')
+
+    registrated_at = models.DateTimeField('Получен в', default=timezone.now, blank=True, null=True)
+    called_at = models.DateTimeField('Прозвонен в', blank=True, null=True)
+    delivered_at = models.DateTimeField('Доставлен в', blank=True, null=True)
+
+    payment_method = models.CharField('Метод оплаты', max_length=1, choices=PAYMENT_METHODS, default='0')
 
     @property
     def cart_total(self):
