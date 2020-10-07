@@ -83,9 +83,9 @@ class Order(models.Model):
         ('1', 'Картой онлайн'),
     )
 
-    first_name = models.CharField('Имя', max_length=30)
-    last_name = models.CharField('Фамилия', max_length=30)
-    phone_number = models.CharField('Номер телефона', max_length=20)
+    firstname = models.CharField('Имя', max_length=30)
+    lastname = models.CharField('Фамилия', max_length=30)
+    phonenumber = models.CharField('Номер телефона', max_length=20)
     phone_number_pure = PhoneNumberField('Нормализованный номер телефона', blank=True)
     address = models.CharField('Адресс', max_length=200)
     order_status = models.CharField('Статус заказа', max_length=1, choices=ORDER_STATUSES, default='0')
@@ -104,14 +104,14 @@ class Order(models.Model):
     def save(self, *args, **kwargs):
         if not self.phone_number_pure:
             try:
-                parsed_phone_number = phonenumbers.parse(self.phone_number, "RU")
+                parsed_phone_number = phonenumbers.parse(self.phonenumber, "RU")
                 self.phone_number_pure = phonenumbers.format_number(parsed_phone_number, phonenumbers.PhoneNumberFormat.INTERNATIONAL)
             except phonenumbers.NumberParseException:
                 pass
         return super().save(*args, **kwargs)
 
     def __str__(self):
-        return f'{self.pk}. {self.first_name} {self.last_name}'
+        return f'{self.pk}. {self.firstname} {self.lastname}'
 
     class Meta:
         verbose_name = 'Заказ'

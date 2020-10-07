@@ -22,23 +22,30 @@
       <th>Телефон</th>
       <th>Адрес доставки</th>
       <th>Комментарий</th>
+      <th>Рестораны</th>
       <th>Заказ</th>
     </tr>
 
     {% for order in orders reversed %}
       <tr>
         <td>{{ order.id }}</td>
-        <td>{{ order.get_order_status_display }}</td>
-        <td>{{ order.get_payment_method_display }}</td>
-        {% if order.cart_total.cart_total %}
-          <td>{{ order.cart_total.cart_total }} руб.</td>
-        {% else %}
-          <td>???</td>
-        {% endif %}
-        <td>{{ order.first_name }} {{ item.last_name }}</td>
-        <td>{{ order.phone_number_pure }}</td>
+        <td>{{ order.status }}</td>
+        <td>{{ order.payment_method }}</td>
+        <td>{{ order.cart_total }} руб.</td>
+        <td>{{ order.name }}</td>
+        <td>{{ order.phone }}</td>
         <td>{{ order.address }}</td>
         <td>{{ order.comment }}</td>
+        <td>
+          <details>
+            <summary>Развернуть</summary>
+            <ul>
+              {% for restaurant in order.restaurants %}
+                <li>{{ restaurant }}</li>
+              {% endfor %}
+            </ul>
+          </details>
+        </td>
         <td><a href="{% url 'admin:foodcartapp_order_change' order.id %}?next={{ request.get_full_path|urlencode }}">Редактировать</a> </td>
       </tr>
     {% endfor %}

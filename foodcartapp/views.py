@@ -101,18 +101,18 @@ class api_register_order(APIView):
         #                 return Response({'Error': 'something wrong with personal info'}, status=status.HTTP_400_BAD_REQUEST)
         # except (TypeError, IndexError, KeyError):
         #     return Response({'Type Error': 'something wrong with products'}, status=status.HTTP_400_BAD_REQUEST)
-        try:
-            #...потом переименую
-            order_data = {
-                "products": request.data['products'],
-                "first_name": request.data['firstname'],
-                "last_name": request.data['lastname'],
-                "phone_number": request.data['phonenumber'],
-                "address": request.data['address'],
-            }
-        except KeyError:
-            return Response({'Key Error': 'some fields are missing :('}, status=status.HTTP_400_BAD_REQUEST)
-        serializer = CreateOrderSerializer(data=order_data)
+        # try:
+        #     #...потом переименую
+        #     order_data = {
+        #         "products": request.data['products'],
+        #         "first_name": request.data['firstname'],
+        #         "last_name": request.data['lastname'],
+        #         "phone_number": request.data['phonenumber'],
+        #         "address": request.data['address'],
+        #     }
+        # except KeyError:
+        #     return Response({'Key Error': 'some fields are missing :('}, status=status.HTTP_400_BAD_REQUEST)
+        serializer = CreateOrderSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
