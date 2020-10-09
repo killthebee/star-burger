@@ -72,9 +72,9 @@ def register_order(request):
         })
     products = [(Product.objects.get(pk=product['product']), product['quantity']) for product in data['products']]
     new_order = Order.objects.create(
-        first_name=data['firstname'],
-        last_name=data['lastname'],
-        phone_number=data['phonenumber'],
+        firstname=data['firstname'],
+        lastname=data['lastname'],
+        phonenumber=data['phonenumber'],
         address=data['address'],
     )
     for product, quantity in products:
@@ -90,28 +90,6 @@ class api_register_order(APIView):
 
     @transaction.atomic
     def post(self, request):
-        # data = request.data
-        # try:
-        #     products = data['products']
-        #     if not isinstance(products[0]['product'], int):
-        #         return Response({'Type Error': 'something wrong with products'}, status=status.HTTP_400_BAD_REQUEST)
-        #     for key in data:
-        #         if key != 'product':
-        #             if not isinstance(data[key], str) or len(data[key]) < 2:
-        #                 return Response({'Error': 'something wrong with personal info'}, status=status.HTTP_400_BAD_REQUEST)
-        # except (TypeError, IndexError, KeyError):
-        #     return Response({'Type Error': 'something wrong with products'}, status=status.HTTP_400_BAD_REQUEST)
-        # try:
-        #     #...потом переименую
-        #     order_data = {
-        #         "products": request.data['products'],
-        #         "first_name": request.data['firstname'],
-        #         "last_name": request.data['lastname'],
-        #         "phone_number": request.data['phonenumber'],
-        #         "address": request.data['address'],
-        #     }
-        # except KeyError:
-        #     return Response({'Key Error': 'some fields are missing :('}, status=status.HTTP_400_BAD_REQUEST)
         serializer = CreateOrderSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()

@@ -5,6 +5,7 @@ from django.db.models import Sum
 from django.core.validators import MinValueValidator, MaxValueValidator
 from phonenumber_field.modelfields import PhoneNumberField
 from django.utils import timezone
+from django.utils.functional import cached_property
 
 
 class Restaurant(models.Model):
@@ -97,7 +98,7 @@ class Order(models.Model):
 
     payment_method = models.CharField('Метод оплаты', max_length=1, choices=PAYMENT_METHODS, default='0')
 
-    @property
+    @cached_property
     def cart_total(self):
         return self.order_products.all().aggregate(cart_total=Sum('product_total'))
 

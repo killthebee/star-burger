@@ -6,10 +6,10 @@ from django.contrib.auth.decorators import user_passes_test
 
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
-from restaurateur.services import find_restaurants, fetch_coordinates
+from restaurateur.services import find_restaurants, serialize_restaurants
 
 
-from foodcartapp.models import Product, Restaurant, Order, RestaurantMenuItem
+from foodcartapp.models import Product, Restaurant, Order
 
 
 class Login(forms.Form):
@@ -100,8 +100,7 @@ def view_restaurants(request):
 def view_orders(request):
     orders = Order.objects.all().prefetch_related('order_products__product')
     restaurants = Restaurant.objects.all().prefetch_related('menu_items__product')
-    restaurants_and_items = [(restaurant, [menu_item.product.name for menu_item in restaurant.menu_items.all() if
-                                            menu_item.availability]) for restaurant in restaurants]
+    serialized_restaurants = serialize_restaurants(restaurants)
 
     orders_info = []
     for order in orders:
@@ -114,9 +113,8 @@ def view_orders(request):
             'phone': order.phone_number_pure,
             'address': order.address,
             'comment': order.comment,
-            'restaurants': find_restaurants(restaurants_and_items, order),
+            'restaurants': find_restaurants(serialized_restaurants, order),
         }
-        # property cart total содаёт кучу запросов, а как их убрать пока хз
         orders_info.append(order_info)
 
     return render(request, template_name='order_items.html', context={

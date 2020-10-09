@@ -30,9 +30,9 @@ class CreateOrderSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         products = [(Product.objects.get(pk=product['product']), product['quantity']) for product in validated_data.get('products')]
         new_order = Order.objects.create(
-            first_name=validated_data.get('first_name'),
-            last_name=validated_data.get('last_name'),
-            phone_number=validated_data.get('phone_number'),
+            firstname=validated_data.get('firstname'),
+            lastname=validated_data.get('lastname'),
+            phonenumber=validated_data.get('phonenumber'),
             address=validated_data.get('address'),
         )
         for product, quantity in products:
