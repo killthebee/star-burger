@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import user_passes_test
 
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
-from restaurateur.services import find_restaurant
+from restaurateur.services import find_restaurants, fetch_coordinates
 
 
 from foodcartapp.models import Product, Restaurant, Order, RestaurantMenuItem
@@ -100,13 +100,11 @@ def view_restaurants(request):
 def view_orders(request):
     orders = Order.objects.all().prefetch_related('order_products__product')
     restaurants = Restaurant.objects.all().prefetch_related('menu_items__product')
-    restaurants_and_items = [(restaurant.name, [menu_item.product.name for menu_item in restaurant.menu_items.all() if
+    restaurants_and_items = [(restaurant, [menu_item.product.name for menu_item in restaurant.menu_items.all() if
                                             menu_item.availability]) for restaurant in restaurants]
 
     orders_info = []
     for order in orders:
-        order_items = [product.product.name for product in order.order_products.all()]
-        print(find_restaurant(restaurants_and_items, order_items))
         order_info = {
             'id': order.id,
             'status': order.get_order_status_display(),
@@ -116,17 +114,11 @@ def view_orders(request):
             'phone': order.phone_number_pure,
             'address': order.address,
             'comment': order.comment,
-            'restaurants': find_restaurant(restaurants_and_items, order_items),
+            'restaurants': find_restaurants(restaurants_and_items, order),
         }
         # property cart total содаёт кучу запросов, а как их убрать пока хз
         orders_info.append(order_info)
 
-
-    # for order in orders:
-    # print([[menu_item.restaurant.name for menu_item in product.product.menu_items.all().prefetch_related('restaurant')] for product in order.order_products.all().prefetch_related('product')])
-
-    # menu_items = RestaurantMenuItem.objects.all().prefetch_related('restaurant_name').prefetch_related('product_id')
-    print(restaurants_and_items)
     return render(request, template_name='order_items.html', context={
         'orders': orders_info,
     })
