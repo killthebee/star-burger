@@ -1,5 +1,6 @@
 bundles/**
 db.sqlite3
 .cache
+.env
 node_modules/
 media/

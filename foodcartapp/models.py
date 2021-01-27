@@ -73,30 +73,29 @@ class RestaurantMenuItem(models.Model):
 
 
 class Order(models.Model):
-    ORDER_STATUSES = (
-        ('0', 'Получен'),
-        ('1', 'Передан ресторану'),
-        ('2', 'Передан курьеру'),
-        ('3', 'Доставлен'),
-    )
-    PAYMENT_METHODS = (
-        ('0', 'Наличные'),
-        ('1', 'Картой онлайн'),
-    )
+    class OrderStatus(models.TextChoices):
+        REGISTERED = 'RGD', 'Получен'
+        ASSIGNED_TO_RESTAURANT = 'ASR', 'Передан ресторану'
+        ASSGNET_TO_COURIER = 'ASC', 'Передан курьеру'
+        DELIVERED = 'DLD', 'Доставлен'
+
+    class PaymentMethods(models.TextChoices):
+        CASH = 'CH', 'Наличные'
+        CARD = 'CD', 'Картой онлайн'
 
     firstname = models.CharField('Имя', max_length=30)
     lastname = models.CharField('Фамилия', max_length=30)
     phonenumber = models.CharField('Номер телефона', max_length=20)
     phone_number_pure = PhoneNumberField('Нормализованный номер телефона', blank=True)
     address = models.CharField('Адресс', max_length=200)
-    order_status = models.CharField('Статус заказа', max_length=1, choices=ORDER_STATUSES, default='0')
+    order_status = models.CharField('Статус заказа', max_length=3, choices=OrderStatus.choices, default=OrderStatus.REGISTERED)
     comment = models.TextField('Комментарий', default='')
 
     registrated_at = models.DateTimeField('Получен в', default=timezone.now, blank=True, null=True)
     called_at = models.DateTimeField('Прозвонен в', blank=True, null=True)
     delivered_at = models.DateTimeField('Доставлен в', blank=True, null=True)
 
-    payment_method = models.CharField('Метод оплаты', max_length=1, choices=PAYMENT_METHODS, default='0')
+    payment_method = models.CharField('Метод оплаты', max_length=2, choices=PaymentMethods.choices, default=PaymentMethods.CASH)
 
     @cached_property
     def cart_total(self):

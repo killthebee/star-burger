@@ -1,6 +1,10 @@
 import requests
 from geopy import distance
 from django.core.cache import cache
+import os
+from environs import Env
+env = Env()
+env.read_env()
 
 
 def fetch_coordinates(apikey, place):
@@ -41,7 +45,7 @@ def serialize_restaurants(restaurants):
             {
                 'name': restaurant.name,
                 'menu_items': [menu_item.product.name for menu_item in restaurant.menu_items.all() if menu_item.availability],
-                'coords': cache.get_or_set(f'restaurant_{restaurant.id}', fetch_coordinates('5dc7eb7b-c53a-4e7c-888b-dca7802f59eb', restaurant.address), 120)
+                'coords': cache.get_or_set(f'restaurant_{restaurant.id}', fetch_coordinates(env.str('YANDEX_API_KEY'), restaurant.address), 120)
             }
         )
     return serialized_restaurants
