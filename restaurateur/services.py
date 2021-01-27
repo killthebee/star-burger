@@ -45,7 +45,7 @@ def serialize_restaurants(restaurants):
             {
                 'name': restaurant.name,
                 'menu_items': [menu_item.product.name for menu_item in restaurant.menu_items.all() if menu_item.availability],
-                'coords': cache.get_or_set(f'restaurant_{restaurant.id}', fetch_coordinates(env.str('YANDEX_API_KEY'), restaurant.address), 120)
+                'coords': cache.get_or_set(f'restaurant_{restaurant.id}', fetch_coordinates(env('YANDEX_API_KEY'), restaurant.address), 120)
             }
         )
     return serialized_restaurants

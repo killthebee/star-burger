@@ -40,7 +40,7 @@ class ProductCategory(models.Model):
 class Product(models.Model):
     name = models.CharField('название', max_length=50)
     category = models.ForeignKey(ProductCategory, null=True, blank=True, on_delete=models.SET_NULL,
-                                 verbose_name='категория', related_name='products')
+                                 verbose_name='категория', related_name='products', db_index=True)
     price = models.DecimalField('цена', max_digits=8, decimal_places=2)
     image = models.ImageField('картинка')
     special_status = models.BooleanField('спец.предложение', default=False, db_index=True)
@@ -87,19 +87,20 @@ class Order(models.Model):
     lastname = models.CharField('Фамилия', max_length=30)
     phonenumber = models.CharField('Номер телефона', max_length=20)
     phone_number_pure = PhoneNumberField('Нормализованный номер телефона', blank=True)
-    address = models.CharField('Адресс', max_length=200)
+    address = models.CharField('Адрес', max_length=200)
     order_status = models.CharField('Статус заказа', max_length=3, choices=OrderStatus.choices, default=OrderStatus.REGISTERED)
-    comment = models.TextField('Комментарий', default='')
+    comment = models.TextField('Комментарий', blank=True)
 
     registrated_at = models.DateTimeField('Получен в', default=timezone.now, blank=True, null=True)
     called_at = models.DateTimeField('Прозвонен в', blank=True, null=True)
     delivered_at = models.DateTimeField('Доставлен в', blank=True, null=True)
 
+
     payment_method = models.CharField('Метод оплаты', max_length=2, choices=PaymentMethods.choices, default=PaymentMethods.CASH)
 
     @cached_property
     def cart_total(self):
-        return self.order_products.all().aggregate(cart_total=Sum('product_total'))
+        return self.order_products.aggregate(cart_total=Sum('product_total'))
 
     def save(self, *args, **kwargs):
         if not self.phone_number_pure:
