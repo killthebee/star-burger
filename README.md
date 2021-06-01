@@ -3,7 +3,7 @@
 Это сайт сети ресторанов Star Burger. Здесь можно заказать превосходные бургеры с доставкой на дом.
 
 <p align="center">
-  <img src="https://github.com/killthebee/star-burger/blob/master/gif/main.gif"/>
+  <img src="https://github.com/killthebee/star-burger/blob/master/gifs/main.gif"/>
 </p>
 
 
