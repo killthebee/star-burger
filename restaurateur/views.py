@@ -110,7 +110,7 @@ def view_orders(request):
             'payment_method': order.get_payment_method_display(),
             'cart_total': order.cart_total['cart_total'],
             'name': order.firstname + ' ' + order.lastname,
-            'phone': order.phone_number_pure,
+            'phone': order.phonenumber,
             'address': order.address,
             'comment': order.comment,
             'restaurants': find_restaurants(serialized_restaurants, order),

@@ -81,7 +81,9 @@ def register_order(request):
         OrderProduct.objects.create(
             order=new_order,
             product=product,
+            product_price=product.price,
             quantity=quantity,
+            product_total=product.price * quantity
         )
     return JsonResponse({})
 
@@ -90,6 +92,7 @@ class api_register_order(APIView):
 
     @transaction.atomic
     def post(self, request):
+        print(request.data)
         serializer = CreateOrderSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()

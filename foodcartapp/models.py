@@ -85,8 +85,7 @@ class Order(models.Model):
 
     firstname = models.CharField('Имя', max_length=30)
     lastname = models.CharField('Фамилия', max_length=30)
-    phonenumber = models.CharField('Номер телефона', max_length=20)
-    phone_number_pure = PhoneNumberField('Нормализованный номер телефона', blank=True)
+    phonenumber = PhoneNumberField('Номер телефона', blank=True)
     address = models.CharField('Адрес', max_length=200)
     order_status = models.CharField('Статус заказа', max_length=3, choices=OrderStatus.choices, default=OrderStatus.REGISTERED)
     comment = models.TextField('Комментарий', blank=True)
@@ -95,21 +94,11 @@ class Order(models.Model):
     called_at = models.DateTimeField('Прозвонен в', blank=True, null=True)
     delivered_at = models.DateTimeField('Доставлен в', blank=True, null=True)
 
-
     payment_method = models.CharField('Метод оплаты', max_length=2, choices=PaymentMethods.choices, default=PaymentMethods.CASH)
 
     @cached_property
     def cart_total(self):
         return self.order_products.aggregate(cart_total=Sum('product_total'))
-
-    def save(self, *args, **kwargs):
-        if not self.phone_number_pure:
-            try:
-                parsed_phone_number = phonenumbers.parse(self.phonenumber, "RU")
-                self.phone_number_pure = phonenumbers.format_number(parsed_phone_number, phonenumbers.PhoneNumberFormat.INTERNATIONAL)
-            except phonenumbers.NumberParseException:
-                pass
-        return super().save(*args, **kwargs)
 
     def __str__(self):
         return f'{self.pk}. {self.firstname} {self.lastname}'
@@ -121,14 +110,10 @@ class Order(models.Model):
 
 class OrderProduct(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, verbose_name='Заказ', related_name='order_products')
-    product = models.ForeignKey(Product, null=True, on_delete=models.SET_NULL, verbose_name='Продукт')
+    product = models.ForeignKey(Product, null=True, on_delete=models.SET_NULL, related_name='order_products', verbose_name='Продукт')
     quantity = models.SmallIntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)], verbose_name='Количество')
-    product_total = models.DecimalField('цена', null=True, max_digits=8, decimal_places=2)
-
-    def save(self, *args, **kwargs):
-        if not self.product_total:
-            self.product_total = self.product.price * self.quantity
-        return super().save(*args, **kwargs)
+    product_price = models.IntegerField('Цена')
+    product_total = models.DecimalField('Итого', null=True, max_digits=8, decimal_places=2)
 
     def __str__(self):
         return self.product.name

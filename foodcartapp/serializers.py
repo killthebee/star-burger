@@ -25,7 +25,7 @@ class CreateOrderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Order
-        exclude = ['phone_number_pure']
+        fields = '__all__'
 
     def create(self, validated_data):
         products = [(Product.objects.get(pk=product['product']), product['quantity']) for product in validated_data.get('products')]
@@ -39,6 +39,8 @@ class CreateOrderSerializer(serializers.ModelSerializer):
             OrderProduct.objects.create(
                 order=new_order,
                 product=product,
+                product_price=product.price,
                 quantity=quantity,
+                product_total=product.price * quantity
             )
         return True
